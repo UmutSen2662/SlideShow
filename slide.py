@@ -7,9 +7,11 @@ from threading import Timer
 from random import shuffle
 from glob import glob
 
+
 def resource_path(relative_path):
     base_path = os.getcwd()
     return os.path.join(base_path, relative_path)
+
 
 class App(tk.Tk):
     def __init__(self):
@@ -52,7 +54,8 @@ class App(tk.Tk):
             return data
 
     def display_image(self):
-        if self.shuffled == True: shuffle(self.files)
+        if self.shuffled == True:
+            shuffle(self.files)
         self.current_image_index = 0
         self.change_image(self.files[self.current_image_index])
 
@@ -65,17 +68,17 @@ class App(tk.Tk):
         self.image_label.image = img
 
         # Update the text label to display the current image index
-        self.text_label.configure(text=str(self.current_image_index + 1)+self.play_pause)
+        self.text_label.configure(text=str(self.current_image_index + 1) + self.play_pause)
 
     def move(self, direction):
         if direction == "right":
-            if self.current_image_index == len(self.files)-1:
+            if self.current_image_index == len(self.files) - 1:
                 self.current_image_index = 0
             else:
                 self.current_image_index += 1
         elif direction == "left":
             if self.current_image_index == 0:
-                self.current_image_index = len(self.files)-1
+                self.current_image_index = len(self.files) - 1
             else:
                 self.current_image_index -= 1
         self.change_image(self.files[self.current_image_index])
@@ -84,14 +87,14 @@ class App(tk.Tk):
         if self.loop_active:
             self.stop_loop()
             self.play_pause = "⏸️"
-            self.text_label.configure(text=str(self.current_image_index + 1)+self.play_pause)
+            self.text_label.configure(text=str(self.current_image_index + 1) + self.play_pause)
         else:
             self.start_loop()
             self.play_pause = "▶️"
-            self.text_label.configure(text=str(self.current_image_index + 1)+self.play_pause)
+            self.text_label.configure(text=str(self.current_image_index + 1) + self.play_pause)
 
     def start_loop(self):
-        #Starts the loop
+        # Starts the loop
         if self.loop_active:
             self.move("right")
         self.loop_active = True
@@ -99,7 +102,7 @@ class App(tk.Tk):
         self.loop_timer.start()
 
     def stop_loop(self):
-        #Stops the loop
+        # Stops the loop
         self.loop_active = False
         if self.loop_timer is not None:
             self.loop_timer.cancel()
@@ -120,25 +123,29 @@ class App(tk.Tk):
             "<Left>": lambda event: self.move("left"),
             "<r>": lambda event: self.display_image(),
             "<space>": lambda event: self.toggle_loop(),
-            "<Double-Delete>": self.delete
+            "<Shift-Delete>": self.delete,
         }
         for key, handler in keys.items():
             self.bind(key, handler)
+
 
 class Settings(tk.Tk):
     def __init__(self):
         super().__init__()
 
-        #Read cache
+        # Read cache
         self.data = self.read_cache()
-        self.shuffled = tk.IntVar(value = self.data["shuffle"])
+        self.shuffled = tk.IntVar(value=self.data["shuffle"])
 
         self.tk.call("source", resource_path(r"Azure\azure.tcl"))
         self.tk.call("set_theme", "dark")
 
         bg = "#404040"
         self.title("Slide Show Settings")
-        width=740; height=230; width_offset=self.winfo_screenwidth()//2 - width//2; height_offset=self.winfo_screenheight()//2 - height
+        width = 740
+        height = 230
+        width_offset = self.winfo_screenwidth() // 2 - width // 2
+        height_offset = self.winfo_screenheight() // 2 - height
         self.geometry(f"{width}x{height}+{width_offset}+{height_offset}")
         self.configure(background=bg)
         self.resizable(False, False)
@@ -150,16 +157,16 @@ class Settings(tk.Tk):
         style.configure("TCheckbutton", background=bg, font=(None, 14))
 
         self.frame0 = ttk.Frame(master=self, width=20)
-        self.frame0.pack(expand=False, padx=15, pady=(10,0), fill="x")
+        self.frame0.pack(expand=False, padx=15, pady=(10, 0), fill="x")
 
         self.frame0.grid_columnconfigure((0), weight=1)
-        self.frame0.grid_rowconfigure((0,1), weight=1)
+        self.frame0.grid_rowconfigure((0, 1), weight=1)
 
         self.label0 = ttk.Label(master=self.frame0, text="Enter File Destination", font=(None, 22))
-        self.label0.grid(row=0, column=0, pady=(5,0), columnspan=2)
+        self.label0.grid(row=0, column=0, pady=(5, 0), columnspan=2)
 
         self.entry0 = ttk.Entry(master=self.frame0, font=(None, 18))
-        self.entry0.grid(row=1, column=0, padx=(5,0), pady=5, ipady=3, sticky="WE")
+        self.entry0.grid(row=1, column=0, padx=(5, 0), pady=5, ipady=3, sticky="WE")
         self.entry0.insert(0, self.data["path"])
 
         self.file_search_button = ttk.Button(master=self.frame0, command=self.open_file_explorer, text="📂", width=2)
@@ -169,15 +176,15 @@ class Settings(tk.Tk):
         self.frame1.pack(expand=False)
 
         self.label1 = ttk.Label(master=self.frame1, text="Enter wait time:", font=(None, 18))
-        self.label1.grid(row=0 ,column=0 ,ipady=5 ,padx=(5,0) ,pady=3)
+        self.label1.grid(row=0, column=0, ipady=5, padx=(5, 0), pady=3)
 
         self.entry1 = ttk.Entry(master=self.frame1, width="3", font=(None, 18))
-        self.entry1.grid(row=0 ,column=1 ,ipady=2 ,padx=(0,5) ,pady=3)
+        self.entry1.grid(row=0, column=1, ipady=2, padx=(0, 5), pady=3)
         self.entry1.insert(0, self.data["delay"])
 
         self.frame2 = ttk.Frame(master=self, width=500)
-        self.frame2.pack(padx=20, pady=(5,10), fill="x")
-        self.frame2.grid_columnconfigure((0,2), weight=1)
+        self.frame2.pack(padx=20, pady=(5, 10), fill="x")
+        self.frame2.grid_columnconfigure((0, 2), weight=1)
 
         self.empty = ttk.Label(master=self.frame2, width=14)
         self.empty.grid(row=0, column=0)
@@ -185,7 +192,9 @@ class Settings(tk.Tk):
         self.button = ttk.Button(master=self.frame2, style="Accent.TButton", text="Begin", command=self.begin, width=6)
         self.button.grid(ipady=3, row=0, column=1)
 
-        self.checkbutton = ttk.Checkbutton(master=self.frame2, text="Randomize", variable=self.shuffled, offvalue=0, onvalue=1)
+        self.checkbutton = ttk.Checkbutton(
+            master=self.frame2, text="Randomize", variable=self.shuffled, offvalue=0, onvalue=1
+        )
         self.checkbutton.grid(row=0, column=2, sticky="e")
 
         self.bind("<Return>", lambda event: self.begin())
@@ -199,7 +208,7 @@ class Settings(tk.Tk):
             path = ""
             delay = 0
             shuffle = False
-            data = {"path" : path, "delay" : delay, "shuffle" : shuffle}
+            data = {"path": path, "delay": delay, "shuffle": shuffle}
             with open("cache.json", "w") as file:
                 json.dump(data, file)
             return data
@@ -224,6 +233,7 @@ class Settings(tk.Tk):
         self.destroy()
         app = App()
         app.mainloop()
+
 
 settings = Settings()
 settings.mainloop()
