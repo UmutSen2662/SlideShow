@@ -73,6 +73,7 @@ docs/_build/
 
 # PyBuilder
 .pybuilder/
+output/
 target/
 
 # Jupyter Notebook

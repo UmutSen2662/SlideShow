@@ -18,17 +18,18 @@ class App(tk.Tk):
         super().__init__()
 
         # Read cache and initialize variables
-        data = self.read_cache()
-        self.shuffled = data["shuffle"]
-        self.wait_time = float(data["delay"])
+        self.data = self.read_cache()
+        self.shuffled = self.data["shuffle"]
+        self.wait_time = float(self.data["delay"])
 
         self.current_image_index = 0
         self.loop_active = False
         self.loop_timer = None
+        self.info_timer = None
         self.play_pause = "⏸️"
 
         # Get a list of the image files in the folder
-        self.files = glob(data["path"] + "/*.jpg") + glob(data["path"] + "/*.png")
+        self.files = glob(self.data["path"] + "/*.jpg") + glob(self.data["path"] + "/*.png")
 
         # Create the main window
         self.configure(bg="black")
@@ -38,6 +39,10 @@ class App(tk.Tk):
         # Create a label to display the image
         self.image_label = tk.Label(self, bg="black")
         self.image_label.pack()
+
+        # Create a label to display timer changes
+        self.timer_info_label = tk.Label(self, font=(None, 36), bg="black", fg="white")
+        # self.timer_info_label.place(relx=0.5, rely=0.5, anchor="center")
 
         # Create a label to display the text
         self.text_label = tk.Label(self, font=(None, 18), bg="black", fg="white")
@@ -52,6 +57,24 @@ class App(tk.Tk):
             with open("cache.json", "r") as file:
                 data = json.load(file)
             return data
+
+    def write_cache(self):
+        if os.path.exists("cache.json"):
+            with open("cache.json", "w") as file:
+                self.data["delay"] = "%g" % self.wait_time
+                json.dump(self.data, file)
+
+    def update_wait_time(self, value):
+        value = value * 0.5
+        if self.wait_time + value > 0 and self.wait_time + value <= 30:
+            self.wait_time += value
+            self.write_cache()
+            self.timer_info_label.place(relx=0.5, rely=0.5, anchor="center")
+            self.timer_info_label.configure(text=("%g" % self.wait_time))
+            if self.info_timer:
+                self.info_timer.cancel()
+            self.info_timer = Timer(1, lambda: self.timer_info_label.place_forget())
+            self.info_timer.start()
 
     def display_image(self):
         if self.shuffled == True:
@@ -118,9 +141,13 @@ class App(tk.Tk):
         keys = {
             "<Escape>": lambda event: self.destroy(),
             "<d>": lambda event: self.move("right"),
-            "<a>": lambda event: self.move("left"),
             "<Right>": lambda event: self.move("right"),
+            "<a>": lambda event: self.move("left"),
             "<Left>": lambda event: self.move("left"),
+            "<w>": lambda event: self.update_wait_time(1),
+            "<Up>": lambda event: self.update_wait_time(1),
+            "<s>": lambda event: self.update_wait_time(-1),
+            "<Down>": lambda event: self.update_wait_time(-1),
             "<r>": lambda event: self.display_image(),
             "<space>": lambda event: self.toggle_loop(),
             "<Shift-Delete>": self.delete,
