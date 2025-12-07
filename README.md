@@ -4,4 +4,4 @@ A fullscreen slide show with autoscrolling, a configureable timer and a randomiz
 
 ## Configuration
 
-The configuration is stored in a `config.json` file.
+The configuration is stored in a `cache.json` file.
