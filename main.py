@@ -157,16 +157,16 @@ class App(tk.Tk):
                 new_height = screen_height
                 new_width = int(screen_height * img_ratio)
 
-                # High-quality resize
-                pil_image = pil_image.resize((new_width, new_height), Image.Resampling.LANCZOS)
-                img = ImageTk.PhotoImage(pil_image)
+            # High-quality resize
+            pil_image = pil_image.resize((new_width, new_height), Image.Resampling.LANCZOS)
+            img = ImageTk.PhotoImage(pil_image)
 
-                # Update the label
-                self.image_label.configure(image=img)
-                self.current_photo = img  # Keep reference to prevent garbage collection
+            # Update the label
+            self.image_label.configure(image=img)
+            self.current_photo = img  # Keep reference to prevent garbage collection
 
-                # Update status text
-                self.text_label.configure(text=f"{self.current_image_index + 1}/{len(self.files)} {self.play_pause}")
+            # Update status text
+            self.text_label.configure(text=f"{self.current_image_index + 1}/{len(self.files)} {self.play_pause}")
 
         except Exception as e:
             print(f"Error loading image {image_file}: {e}")
